@@ -2,6 +2,8 @@ from pynput import mouse
 import time
 import tkinter as tk
 import threading
+import time
+import chime
 
 class Timer:
     def __init__(self, name, duration):
@@ -38,9 +40,9 @@ class TimerManager:
         self.listener.start()
         self.root = tk.Tk()
         self.root.title("Таймеры")
-        self.label = tk.Label(self.root, text="", font=("Arial", 24), fg="red", bg="#fcfcfc", padx=10, pady=10)
+        self.label = tk.Label(self.root, text="", font=("Arial", 24), fg="red", bg="white", padx=10, pady=10)
         self.label.pack()
-
+        self.start_time = None
     def add_timer(self, name, duration):
         self.timers[name] = Timer(name, duration)
 
@@ -54,10 +56,24 @@ class TimerManager:
 
     def on_click(self, x, y, button, pressed):
         if pressed:
-            if button == mouse.Button.left:
+            if button == mouse.Button.middle:
                 self.start_timer("mouse4")
+                threading.Thread(target=self.check_timer, args=("mouse4", 55, chime.success)).start()
             elif button == mouse.Button.right:
                 self.start_timer("mouse5")
+                threading.Thread(target=self.check_timer, args=("mouse5", 10, chime.info)).start()
+
+    def check_timer(self, timer_name, time_left, sound):
+        while True:
+            if int(self.timers[timer_name].get_time_left()) <= time_left:
+                sound()
+                break
+            time.sleep(1)
+                                # self.start_timer("mouse5")
+        #     if button == mouse.Button.middle:
+
+        # listener = TimerManager()
+        # listener.listener.join()    
 
     def print_timers(self):
         while True:
